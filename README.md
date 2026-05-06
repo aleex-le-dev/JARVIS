@@ -56,13 +56,10 @@ L'orbe 3D change d'état en temps réel :
 ## Installation
 
 ```bash
-# Cloner le projet
-git clone https://github.com/votre-repo/jarvis.git
-cd jarvis
-
-# Installation automatique (venv Python + dépendances + frontend)
-bash install_linux.sh
+cd /home/alex/Bureau/JARVIS && sudo bash install_linux.sh
 ```
+
+Installe automatiquement : paquets système, venv Python, modules Python, frontend npm, PulseAudio.
 
 ### Configuration
 
@@ -83,7 +80,7 @@ SERPAPI_API_KEY=votre_cle_serpapi   # Optionnel
 ## Lancement
 
 ```bash
-bash start_jarvis.sh
+cd /home/alex/Bureau/JARVIS && bash start_jarvis.sh
 ```
 
 L'interface desktop s'ouvre automatiquement sur `http://localhost:5173`.  

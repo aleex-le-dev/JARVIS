@@ -1,17 +1,19 @@
 #!/bin/bash
 # ======================================================
 #   J.A.R.V.I.S — Installateur Linux
-#   Testé sur : Ubuntu 22.04+, Debian 12+, Linux Mint 21+
+#   Usage : sudo bash install_linux.sh
 # ======================================================
 set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+GREEN='\033[0;32m'; YELLOW='\033[1;33m'
+RED='\033[0;31m';   CYAN='\033[0;36m'; NC='\033[0m'
+
+ok()   { echo -e "${GREEN}[✓] $1${NC}"; }
+info() { echo -e "${CYAN}[…] $1${NC}"; }
+warn() { echo -e "${YELLOW}[!] $1${NC}"; }
+fail() { echo -e "${RED}[✗] $1${NC}"; exit 1; }
 
 echo -e "${CYAN}"
 echo "======================================================"
@@ -19,159 +21,126 @@ echo "        J.A.R.V.I.S — Installation Linux"
 echo "======================================================"
 echo -e "${NC}"
 
-# ── 1. Vérification des droits ─────────────────────────
-if [ "$EUID" -ne 0 ]; then
-    echo -e "${YELLOW}[!] Recommandé : lancez avec sudo pour installer les dépendances système.${NC}"
-    echo "    sudo bash install_linux.sh"
-    echo ""
+# ── 1. Sudo requis ─────────────────────────────────────
+[ "$EUID" -ne 0 ] && fail "Lancez avec sudo : sudo bash install_linux.sh"
+
+REAL_USER="${SUDO_USER:-$USER}"
+REAL_HOME=$(eval echo "~$REAL_USER")
+
+# ── 2. Paquets système ─────────────────────────────────
+info "Installation des paquets système..."
+apt-get update -qq
+apt-get install -y -q \
+    python3 python3-pip python3-venv python3-dev \
+    portaudio19-dev libasound2-dev \
+    pulseaudio \
+    nodejs npm \
+    libxcb-xinerama0 python3-xlib \
+    espeak ffmpeg lsof \
+    build-essential pkg-config \
+    libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
+    libfreetype6-dev libportmidi-dev
+ok "Paquets système installés."
+
+# ── 3. Venv Python ─────────────────────────────────────
+info "Création de l'environnement virtuel Python..."
+PY=$(which python3.12 2>/dev/null || which python3.11 2>/dev/null || which python3.10 2>/dev/null || which python3)
+$PY --version
+
+# Supprimer le venv cassé si pip absent
+if [ -d "$DIR/venv" ] && [ ! -f "$DIR/venv/bin/pip" ]; then
+    rm -rf "$DIR/venv"
 fi
 
-# ── 2. Mise à jour des paquets système ─────────────────
-echo -e "${CYAN}[1/7] Mise à jour des paquets système...${NC}"
-if command -v apt-get &>/dev/null; then
-    sudo apt-get update -q
-    sudo apt-get install -y -q \
-        python3 python3-pip python3-venv \
-        portaudio19-dev python3-pyaudio \
-        nodejs npm \
-        libxcb-xinerama0 python3-xlib \
-        espeak ffmpeg \
-        lsof
-    PKG_MGR="apt"
-elif command -v dnf &>/dev/null; then
-    sudo dnf install -y -q \
-        python3 python3-pip \
-        portaudio-devel \
-        nodejs npm \
-        python3-xlib \
-        espeak ffmpeg \
-        lsof
-    PKG_MGR="dnf"
-elif command -v pacman &>/dev/null; then
-    sudo pacman -Sy --noconfirm \
-        python python-pip \
-        portaudio \
-        nodejs npm \
-        python-xlib \
-        espeak ffmpeg \
-        lsof
-    PKG_MGR="pacman"
-else
-    echo -e "${YELLOW}[!] Gestionnaire de paquets non reconnu. Installez manuellement :${NC}"
-    echo "    python3, python3-pip, python3-venv, portaudio, nodejs, npm, lsof"
-fi
-echo -e "${GREEN}[OK] Paquets système installés.${NC}"
-
-# ── 3. Environnement virtuel Python ────────────────────
-echo ""
-echo -e "${CYAN}[2/7] Création de l'environnement virtuel Python...${NC}"
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
-    echo -e "${GREEN}[OK] Environnement virtuel créé.${NC}"
-else
-    echo -e "${GREEN}[OK] Environnement virtuel déjà présent.${NC}"
+if [ ! -d "$DIR/venv" ]; then
+    $PY -m venv "$DIR/venv" --without-pip
+    # Bootstrap pip manuellement (compatible Python 3.14)
+    curl -sS https://bootstrap.pypa.io/get-pip.py | "$DIR/venv/bin/python"
 fi
 
-VENV_PY="./venv/bin/python"
-VENV_PIP="./venv/bin/pip"
+# Vérification
+[ -f "$DIR/venv/bin/pip" ] || { echo "get-pip.py non disponible, essai ensurepip..." && "$DIR/venv/bin/python" -m ensurepip --upgrade; }
+ok "Venv créé avec $PY"
 
-# ── 4. Mise à jour pip ─────────────────────────────────
-echo ""
-echo -e "${CYAN}[3/7] Mise à jour de pip...${NC}"
-"$VENV_PIP" install --upgrade pip setuptools wheel -q
+PIP="$DIR/venv/bin/pip"
+"$PIP" install --upgrade pip setuptools wheel -q
 
-# ── 5. Installation des modules Python ─────────────────
-echo ""
-echo -e "${CYAN}[4/7] Installation des modules Python (quelques minutes)...${NC}"
+# ── 4. Modules Python ──────────────────────────────────
+info "Installation des modules Python..."
 
-echo "  → Modules IA (Gemini, OpenAI, Groq)..."
-"$VENV_PIP" install -q \
-    python-dotenv google-genai google-generativeai \
-    groq openai flask flask-cors requests websockets \
-    colorama tenacity
-
-echo "  → Modules Audio / Vision..."
-"$VENV_PIP" install -q \
-    SpeechRecognition edge-tts pyttsx3 \
-    pyautogui Pillow screeninfo psutil
-
-echo "  → PyAudio et Pygame..."
-"$VENV_PIP" install -q pygame pyaudio
-
-echo "  → Google APIs..."
-"$VENV_PIP" install -q \
+"$PIP" install -q \
+    python-dotenv \
+    google-genai google-generativeai \
     google-auth google-auth-oauthlib google-auth-httplib2 \
-    google-api-python-client
+    google-api-python-client \
+    google-api-core googleapis-common-protos \
+    grpcio grpcio-status proto-plus protobuf
 
-if [ -f "requirements.txt" ]; then
-    echo "  → requirements.txt..."
-    "$VENV_PIP" install -q -r requirements.txt
-fi
+"$PIP" install -q \
+    openai groq \
+    flask flask-cors requests websockets httpx aiohttp
 
-echo -e "${GREEN}[OK] Modules Python installés.${NC}"
+"$PIP" install -q \
+    SpeechRecognition edge-tts pyttsx3 pygame
 
-# ── 6. Interface Web (npm) ──────────────────────────────
-echo ""
-echo -e "${CYAN}[5/7] Installation de l'interface Web (npm)...${NC}"
-if command -v npm &>/dev/null; then
-    if [ -f "frontend/package.json" ]; then
-        cd frontend && npm install -q && cd ..
-        # Réparer les permissions si lancé en sudo (node_modules appartient à root sinon)
-        REAL_USER="${SUDO_USER:-$USER}"
-        chown -R "$REAL_USER":"$REAL_USER" "$DIR" 2>/dev/null || true
-        echo -e "${GREEN}[OK] Interface Web installée.${NC}"
-    fi
+"$PIP" install -q \
+    pyautogui Pillow screeninfo psutil \
+    colorama tenacity tabulate tqdm pydantic
+
+# PyAudio — compilation depuis les sources si pas de wheel
+info "Installation de PyAudio (peut prendre un moment)..."
+"$PIP" install -q pyaudio || warn "PyAudio échoué — micro peut-être non fonctionnel"
+
+# OpenCV — optionnel
+"$PIP" install -q opencv-python || warn "OpenCV non installé — vision caméra désactivée"
+
+ok "Modules Python installés."
+
+# ── 5. Frontend npm ────────────────────────────────────
+info "Installation du frontend (npm)..."
+if command -v npm &>/dev/null && [ -f "$DIR/frontend/package.json" ]; then
+    cd "$DIR/frontend" && npm install --silent && cd "$DIR"
+    ok "Frontend npm installé."
 else
-    echo -e "${YELLOW}[!] npm non trouvé. Interface Web ignorée.${NC}"
+    warn "npm non disponible — interface web ignorée."
 fi
 
-# ── 7. Personnalisation du prénom ───────────────────────
-echo ""
-echo -e "${CYAN}[6/7] Personnalisation...${NC}"
-echo -e "Par défaut, JARVIS s'adresse à '${YELLOW}Mickael${NC}'."
-read -p "Votre prénom (Entrée pour garder Mickael) : " PRENOM
+# ── 6. Permissions ─────────────────────────────────────
+chown -R "$REAL_USER":"$REAL_USER" "$DIR" 2>/dev/null || true
 
-if [ -n "$PRENOM" ] && [ "$PRENOM" != "Mickael" ] && [ "$PRENOM" != "mickael" ]; then
-    PRENOM_LOWER=$(echo "$PRENOM" | tr '[:upper:]' '[:lower:]')
-    sed -i "s/Mickael/$PRENOM/g; s/mickael/$PRENOM_LOWER/g" main2.py
-    [ -f jarvis_agent.py ] && sed -i "s/Mickael/$PRENOM/g; s/mickael/$PRENOM_LOWER/g" jarvis_agent.py
-    echo -e "${GREEN}[OK] JARVIS personnalisé pour ${PRENOM}.${NC}"
-fi
-
-# ── 8. Lanceur ──────────────────────────────────────────
-echo ""
-echo -e "${CYAN}[7/7] Création du lanceur...${NC}"
-cat > start_jarvis.sh << 'EOF'
+# ── 7. Lanceur ─────────────────────────────────────────
+info "Création du lanceur start_jarvis.sh..."
+cat > "$DIR/start_jarvis.sh" << 'LAUNCHER'
 #!/bin/bash
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
-echo "Démarrage de J.A.R.V.I.S..."
-./venv/bin/python main2.py
-EOF
-chmod +x start_jarvis.sh
 
-# Raccourci .desktop (menu applications)
-DESKTOP_FILE="$HOME/.local/share/applications/jarvis.desktop"
-cat > "$DESKTOP_FILE" << EOF
-[Desktop Entry]
-Name=J.A.R.V.I.S
-Comment=Assistant IA personnel
-Exec=bash $DIR/start_jarvis.sh
-Terminal=true
-Type=Application
-Categories=Utility;
-EOF
-echo -e "${GREEN}[OK] Lanceur créé : start_jarvis.sh${NC}"
-echo -e "${GREEN}[OK] Raccourci ajouté au menu des applications.${NC}"
+# Démarrer PulseAudio si absent
+if ! pgrep -x pulseaudio > /dev/null 2>&1; then
+    pulseaudio --start --log-target=syslog 2>/dev/null || true
+    sleep 1
+fi
+
+echo ""
+echo "======================================================"
+echo "   J.A.R.V.I.S — Démarrage"
+echo "======================================================"
+echo ""
+
+"$DIR/venv/bin/python" main2.py
+LAUNCHER
+chmod +x "$DIR/start_jarvis.sh"
+chown "$REAL_USER":"$REAL_USER" "$DIR/start_jarvis.sh" 2>/dev/null || true
+ok "Lanceur créé."
 
 # ── Fin ─────────────────────────────────────────────────
 echo ""
-echo -e "${CYAN}======================================================"
-echo "   [OK] Installation terminée !"
+echo -e "${GREEN}======================================================"
+echo "   [✓] Installation terminée !"
 echo "======================================================"
 echo -e "${NC}"
-echo "PROCHAINES ÉTAPES :"
-echo "  1. Ouvrez le fichier .env et renseignez vos clés API"
-echo "  2. (Optionnel) Ajoutez votre credentials.json Google"
-echo "  3. Lancez JARVIS avec :  bash start_jarvis.sh"
+echo "  Vérifiez votre fichier .env (clé GEMINI_API_KEY)"
+echo ""
+echo "  Pour lancer JARVIS :"
+echo -e "  ${CYAN}bash start_jarvis.sh${NC}"
 echo ""

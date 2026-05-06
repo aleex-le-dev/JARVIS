@@ -10,7 +10,13 @@ import os
 from dotenv import load_dotenv
 import random
 import math
-import pyautogui
+try:
+    import pyautogui
+    PYAUTOGUI_OK = True
+except Exception:
+    pyautogui = None
+    PYAUTOGUI_OK = False
+    print("[WARN] pyautogui non disponible — fonctions vision/clic désactivées")
 import webbrowser
 import subprocess
 import requests
