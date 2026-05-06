@@ -33,14 +33,21 @@ apt-get update -qq
 apt-get install -y -q \
     python3 python3-pip python3-venv python3-dev \
     portaudio19-dev libasound2-dev \
-    pulseaudio \
+    pulseaudio pipewire pipewire-alsa pipewire-pulse wireplumber \
     nodejs npm \
     libxcb-xinerama0 python3-xlib \
-    espeak ffmpeg lsof \
+    espeak ffmpeg lsof curl \
     build-essential pkg-config \
     libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
     libfreetype6-dev libportmidi-dev
 ok "Paquets système installés."
+
+# ── 2b. PipeWire — activer le micro ALSA ───────────────
+info "Configuration audio PipeWire..."
+REAL_USER_ID=$(id -u "$REAL_USER")
+sudo -u "$REAL_USER" XDG_RUNTIME_DIR="/run/user/$REAL_USER_ID" \
+    systemctl --user enable --now pipewire pipewire-pulse wireplumber 2>/dev/null || true
+ok "Audio PipeWire configuré."
 
 # ── 3. Venv Python ─────────────────────────────────────
 info "Création de l'environnement virtuel Python..."
@@ -115,11 +122,12 @@ cat > "$DIR/start_jarvis.sh" << 'LAUNCHER'
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
-# Démarrer PulseAudio si absent
-if ! pgrep -x pulseaudio > /dev/null 2>&1; then
-    pulseaudio --start --log-target=syslog 2>/dev/null || true
-    sleep 1
-fi
+# Accès à l'affichage X11
+export DISPLAY=${DISPLAY:-:0}
+export XAUTHORITY=${XAUTHORITY:-$HOME/.Xauthority}
+
+# S'assurer que PipeWire tourne (gère aussi PulseAudio)
+systemctl --user start pipewire pipewire-pulse wireplumber 2>/dev/null || true
 
 echo ""
 echo "======================================================"

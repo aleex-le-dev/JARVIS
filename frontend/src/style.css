@@ -52,7 +52,7 @@ body {
 /* ── Persistent label ─────────────────────────────────────────────────────── */
 #assistant-label {
   position: fixed;
-  bottom: 18px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   color: rgba(76, 168, 232, 0.18);
@@ -169,6 +169,144 @@ body {
   border-color: rgba(239, 68, 68, 0.26);
   color: rgba(255, 160, 160, 0.9);
   box-shadow: 0 0 18px rgba(239, 68, 68, 0.14);
+}
+
+/* ── Mic button ───────────────────────────────────────────────────────────── */
+#mic-button {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(76, 168, 232, 0.25);
+  background: rgba(5, 5, 8, 0.5);
+  color: rgba(76, 168, 232, 0.7);
+  cursor: pointer;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 0.25s ease, border-color 0.25s ease,
+    color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+#mic-button svg {
+  width: 26px;
+  height: 26px;
+}
+
+#mic-button:hover {
+  background: rgba(76, 168, 232, 0.1);
+  border-color: rgba(76, 168, 232, 0.5);
+  color: rgba(76, 168, 232, 1);
+  box-shadow: 0 0 20px rgba(76, 168, 232, 0.2);
+}
+
+#mic-button.is-listening {
+  background: rgba(76, 168, 232, 0.18);
+  border-color: rgba(76, 168, 232, 0.7);
+  color: #4ca8e8;
+  box-shadow: 0 0 28px rgba(76, 168, 232, 0.35);
+  animation: pulse-mic 1.2s ease-in-out infinite;
+  transform: translateX(-50%) scale(1.08);
+}
+
+@keyframes pulse-mic {
+  0%, 100% { box-shadow: 0 0 28px rgba(76, 168, 232, 0.35); }
+  50%       { box-shadow: 0 0 42px rgba(76, 168, 232, 0.6); }
+}
+
+/* ── Transcript ───────────────────────────────────────────────────────────── */
+#transcript-text {
+  position: fixed;
+  bottom: 210px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  font-weight: 300;
+  max-width: 60vw;
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.3s ease;
+}
+
+#transcript-text:empty { opacity: 0; }
+
+/* ── Text input bar ───────────────────────────────────────────────────────── */
+#text-input-bar {
+  position: fixed;
+  bottom: 148px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(480px, 88vw);
+  z-index: 20;
+}
+
+#text-input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid rgba(76, 168, 232, 0.2);
+  border-radius: 999px;
+  background: rgba(5, 5, 8, 0.55);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  font-family: inherit;
+  letter-spacing: 0.4px;
+  font-weight: 300;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+#text-input::placeholder {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+#text-input:focus {
+  border-color: rgba(76, 168, 232, 0.45);
+  box-shadow: 0 0 14px rgba(76, 168, 232, 0.12);
+}
+
+#text-send {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(76, 168, 232, 0.22);
+  background: rgba(5, 5, 8, 0.55);
+  color: rgba(76, 168, 232, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+#text-send svg {
+  width: 16px;
+  height: 16px;
+}
+
+#text-send:hover {
+  background: rgba(76, 168, 232, 0.12);
+  border-color: rgba(76, 168, 232, 0.5);
+  color: rgba(76, 168, 232, 1);
 }
 
 /* ── Error toast ──────────────────────────────────────────────────────────── */

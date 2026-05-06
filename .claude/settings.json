@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//usr/lib/**)",
+      "Bash(dpkg -l)",
+      "Bash(awk '{print $2, $3}')",
+      "Bash(dpkg -S \"alsa.acp\")",
+      "Bash(apt-cache search *)",
+      "Bash(apt-cache show *)",
+      "Bash(dpkg -l pipewire-alsa)",
+      "Bash(sudo apt-get *)"
+    ]
+  }
+}

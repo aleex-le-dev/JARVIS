@@ -420,7 +420,7 @@ async def ws_handler(websocket):
                 data = json.loads(message)
                 if data.get("type") == "mobile_command":
                     texte = data.get("text", "").strip()
-                    if texte:
+                    if texte and not texte.startswith("⚠"):
                         print(f"[MOBILE] Commande recue : {texte}")
                         asyncio.ensure_future(traiter_reponse_ia(texte, mobile_ws=websocket))
                 elif data.get("type") == "stop_audio":
@@ -1769,7 +1769,7 @@ async def parler(texte):
     is_speaking  = True
     await send_web_state("speaking")
     speak_volume = 0.0
-    tmp = "jarvis_tts_current.mp3"
+    tmp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jarvis_tts_current.mp3")
     
     try:
         communicate = edge_tts.Communicate(texte_tts, voice="fr-FR-HenriNeural")

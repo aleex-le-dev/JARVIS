@@ -23,7 +23,11 @@ const badgeEl = document.getElementById("connection-badge") as HTMLDivElement;
 const badgeLabelEl = document.getElementById(
   "connection-label"
 ) as HTMLSpanElement;
-const muteButtonEl = document.getElementById("mute-button") as HTMLButtonElement;
+const muteButtonEl    = document.getElementById("mute-button") as HTMLButtonElement;
+const micButtonEl     = document.getElementById("mic-button") as HTMLButtonElement;
+const transcriptEl    = document.getElementById("transcript-text") as HTMLDivElement;
+const textInputEl     = document.getElementById("text-input") as HTMLInputElement;
+const textSendEl      = document.getElementById("text-send") as HTMLButtonElement;
 
 // ── Orb ───────────────────────────────────────────────────────────────────────
 const orb = createOrb(canvas);
@@ -39,6 +43,7 @@ const STATE_LABELS: Record<OrbState, string> = {
 function applyState(state: OrbState): void {
   orb.setState(state);
   statusEl.textContent = STATE_LABELS[state];
+  if (state === "idle") transcriptEl.textContent = "";
 }
 
 function setMuted(muted: boolean): void {
@@ -91,7 +96,13 @@ function connect(): void {
         muted?: boolean;
         volume?: number;
         id?: string;
+        audio_b64?: string;
       };
+
+      if (data.action === "jarvis_audio" && data.audio_b64) {
+        playBase64Audio(data.audio_b64 as string);
+        return;
+      }
 
       if (data.action === "request_screen_capture") {
         const frame = await captureFrame();
@@ -152,15 +163,123 @@ function scheduleReconnect(): void {
   }, RECONNECT_INTERVAL_MS);
 }
 
+// ── Audio playback ────────────────────────────────────────────────────────────
+let currentAudio: HTMLAudioElement | null = null;
+
+function playBase64Audio(b64: string): void {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  const audio = new Audio(`data:audio/mpeg;base64,${b64}`);
+  currentAudio = audio;
+  audio.play().catch(() => {/* autoplay bloqué, ignoré */});
+  audio.addEventListener("ended", () => {
+    currentAudio = null;
+  });
+}
+
 // ── Events ──────────────────────────────────────────────────────────────────
 muteButtonEl.addEventListener("click", () => {
   if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+  // Couper l'audio en cours dans le navigateur
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
 
   // Envoi du signal stop au backend
   ws.send(JSON.stringify({ type: "stop_audio" }));
 
   // Feedback immédiat sur l'orbe
   applyState("idle");
+});
+
+// ── Web Speech API (micro Chrome) ────────────────────────────────────────────
+const SpeechRecognitionAPI =
+  (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+let recognition: any = null;
+let browserListening = false;
+
+if (SpeechRecognitionAPI) {
+  recognition = new SpeechRecognitionAPI();
+  recognition.lang           = "fr-FR";
+  recognition.continuous     = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.addEventListener("start", () => {
+    browserListening = true;
+    micButtonEl.classList.add("is-listening");
+    transcriptEl.textContent = "";
+    applyState("listening");
+  });
+
+  recognition.addEventListener("result", (event: any) => {
+    let interim = "";
+    let final_txt = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) final_txt += t;
+      else interim += t;
+    }
+    transcriptEl.textContent = final_txt || interim;
+  });
+
+  recognition.addEventListener("end", () => {
+    browserListening = false;
+    micButtonEl.classList.remove("is-listening");
+    const texte = transcriptEl.textContent?.trim() ?? "";
+    if (texte && ws && ws.readyState === WebSocket.OPEN) {
+      applyState("thinking");
+      ws.send(JSON.stringify({ type: "mobile_command", text: texte }));
+    } else {
+      applyState("idle");
+      transcriptEl.textContent = "";
+    }
+  });
+
+  recognition.addEventListener("error", (event: any) => {
+    browserListening = false;
+    micButtonEl.classList.remove("is-listening");
+    applyState("idle");
+    if (event.error === "not-allowed") {
+      transcriptEl.textContent = "⚠ Micro non autorisé";
+    } else if (event.error !== "no-speech") {
+      transcriptEl.textContent = `⚠ ${event.error}`;
+    }
+  });
+
+  micButtonEl.addEventListener("click", () => {
+    if (browserListening) {
+      recognition.stop();
+    } else {
+      transcriptEl.textContent = "";
+      try { recognition.start(); } catch (e) { /* déjà en cours */ }
+    }
+  });
+} else {
+  micButtonEl.title = "Web Speech API non supportée sur ce navigateur";
+  micButtonEl.style.opacity = "0.3";
+  micButtonEl.disabled = true;
+}
+
+// ── Text input ────────────────────────────────────────────────────────────────
+function sendTextCommand(): void {
+  const texte = textInputEl.value.trim();
+  if (!texte || !ws || ws.readyState !== WebSocket.OPEN) return;
+  textInputEl.value = "";
+  transcriptEl.textContent = texte;
+  applyState("thinking");
+  ws.send(JSON.stringify({ type: "mobile_command", text: texte }));
+}
+
+textSendEl.addEventListener("click", sendTextCommand);
+
+textInputEl.addEventListener("keydown", (e: KeyboardEvent) => {
+  if (e.key === "Enter") sendTextCommand();
 });
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
