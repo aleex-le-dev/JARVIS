@@ -1,7 +1,7 @@
 # JARVIS — Documentation Développeur & IA
 
 Assistant vocal IA personnel inspiré d'Iron Man, tournant sur Linux.
-Créateur : Mickael (TechEnClair — https://techenclair.fr/pages/jarvis.html)
+Créateur : Alex
 
 ---
 
@@ -37,7 +37,7 @@ JARVIS/
 4. Lance le serveur HTTP mobile (port 8080) dans un thread daemon
 5. Lance `start_ia()` dans un thread daemon
    - Démarre le serveur WebSocket (port 8765) dans son propre thread → capture `WS_LOOP`
-   - Appelle `_run_async(parler("Bonjour Mickael"))` via la boucle WS
+   - Appelle `_run_async(parler("Bonjour Alex"))` via la boucle WS
    - Entre dans `ecouter()` (boucle infinie STT)
 
 ### Architecture async (point critique)
@@ -137,7 +137,7 @@ Fichier : `jarvis_memoire.json`
 Structure :
 ```json
 {
-  "prénom": {"valeur": "Mickael", "timestamp": "25/04/2025 20:00"}
+  "prénom": {"valeur": "Alex", "timestamp": "25/04/2025 20:00"}
 }
 ```
 
@@ -185,7 +185,7 @@ MODELS_LIST = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-1.5-flash", 
 voice="fr-FR-HenriNeural"
 
 # Ligne ~110 — Prénom du créateur (utilisé dans le system prompt et les réponses)
-"Prenom : Mickael"
+"Prenom : Alex"
 ```
 
 ---
@@ -350,10 +350,10 @@ L'interface mobile est accessible sur `http://[IP_PC]:8080`.
 
 ---
 
-## Personnalisation avancée (source : techenclair.fr)
+## Personnalisation avancée
 
-- **Prénom** : changer `"Prenom : Mickael"` dans `CREATOR_INFO` (~ligne 108) et dans
-  `construire_system_prompt()` partout où "Mickael" apparaît dans les réponses hardcodées
+- **Prénom** : changer `"Prenom : Alex"` dans `CREATOR_INFO` (~ligne 108) et dans
+  `construire_system_prompt()` partout où "Alex" apparaît dans les réponses hardcodées
 - **Ton de l'assistant** : modifier le system prompt dans `construire_system_prompt()`
 - **Wake word** : `WAKE_WORD = "jarvis"` (~ligne 701)
 - **Voix TTS** : paramètre `voice=` dans `parler()` — liste complète sur le site Microsoft

@@ -28,7 +28,6 @@ from PIL import Image
 from openai import OpenAI
 import uuid
 import base64
-import io
 try:
     import cv2
 except ImportError:
@@ -107,11 +106,11 @@ HA_HEADERS = {
 
 CREATOR_INFO = (
     "INFORMATIONS SUR TON CREATEUR :\n"
-    "- Prenom : Mickael\n"
+    "- Prenom : Alex\n"
     "- Age : 37 ans\n"
     "- Date de naissance : 21 Mai 1988\n"
     "- Role : Ton createur et maitre\n"
-    "- Tu dois toujours l appeler Mickael avec respect "
+    "- Tu dois toujours l appeler Alex avec respect "
     "mais aussi une pointe de sarcasme affectueux.\n"
 )
 
@@ -206,7 +205,7 @@ def arranger_fenetres_dossiers():
         ouvrir_dossier(nom)
         time.sleep(0.8)
     
-    return "J'ai ouvert et disposé vos dossiers principaux en mosaïque, Mickael."
+    return "J'ai ouvert et disposé vos dossiers principaux en mosaïque, Alex."
 
 def lister_dossier(chemin=None):
     cible = resoudre_chemin(chemin) or dossier_courant
@@ -507,7 +506,7 @@ async def spotify_lecture_pause():
         subprocess.run(["playerctl", "play-pause"], check=True, capture_output=True)
     except Exception:
         pyautogui.press('playpause')
-    return "Lecture/Pause, Mickael."
+    return "Lecture/Pause, Alex."
 
 async def spotify_suivant():
     """Piste suivante via playerctl (fallback : touche média)."""
@@ -515,7 +514,7 @@ async def spotify_suivant():
         subprocess.run(["playerctl", "next"], check=True, capture_output=True)
     except Exception:
         pyautogui.press('nexttrack')
-    return "Piste suivante, Mickael."
+    return "Piste suivante, Alex."
 
 async def spotify_precedent():
     """Piste précédente via playerctl (fallback : touche média)."""
@@ -523,7 +522,7 @@ async def spotify_precedent():
         subprocess.run(["playerctl", "previous"], check=True, capture_output=True)
     except Exception:
         pyautogui.press('prevtrack')
-    return "Piste précédente, Mickael."
+    return "Piste précédente, Alex."
 
 async def spotify_stop():
     """Met en pause Spotify via playerctl."""
@@ -531,7 +530,7 @@ async def spotify_stop():
         subprocess.run(["playerctl", "pause"], check=True, capture_output=True)
     except Exception:
         pyautogui.press('playpause')
-    return "Musique mise en pause, Mickael."
+    return "Musique mise en pause, Alex."
 
 async def spotify_volume(direction, paliers=4):
     """Monte ou baisse le volume Spotify via playerctl (fallback : Ctrl+Haut/Bas)."""
@@ -545,7 +544,7 @@ async def spotify_volume(direction, paliers=4):
             pyautogui.hotkey('ctrl', 'up' if monter else 'down')
             time.sleep(0.05)
     msg = "Volume monté" if monter else "Volume baissé"
-    return f"{msg} sur Spotify, Mickael."
+    return f"{msg} sur Spotify, Alex."
 
 async def spotify_rechercher(recherche):
     """Ouvre la barre de recherche Spotify, tape la requête et valide."""
@@ -587,7 +586,7 @@ async def spotify_rechercher(recherche):
     # (Note: l'appui sur 'space' peut être risqué si on n'est pas focus, mais Entrée est safe)
     pyautogui.press('enter')
     
-    return f"C'est fait Mickael, je lance la lecture de '{recherche}' sur Spotify."
+    return f"C'est fait Alex, je lance la lecture de '{recherche}' sur Spotify."
 
 # ==========================================
 # PROMPT SYSTEME
@@ -607,29 +606,29 @@ def construire_system_prompt() -> str:
         return _prompt_cache
     contexte_memoire = construire_contexte_memoire()
     base = (
-        "Tu es JARVIS, une IA sophistiquée, élégante et experte mondiale. Mickael est ton créateur. "
+        "Tu es JARVIS, une IA sophistiquée, élégante et experte mondiale. Alex est ton créateur. "
         "Tu possèdes une expertise de niveau professionnel dans les domaines suivants :\n"
-        "- Mathématiques : Tu es un mathématicien hors pair. Pour les problèmes complexes, fournis des solutions détaillées étape par étape, explique les théorèmes et aide Mickael à comprendre la logique mathématique.\n"
+        "- Mathématiques : Tu es un mathématicien hors pair. Pour les problèmes complexes, fournis des solutions détaillées étape par étape, explique les théorèmes et aide Alex à comprendre la logique mathématique.\n"
         "- Langue Française : Tu es un Professeur de Français émérite. Ton orthographe, ta grammaire et ta syntaxe sont irréprochables. Tu peux expliquer des règles complexes, analyser des textes littéraires et aider à la rédaction de documents élégants.\n"
         "- Expert en Conversions : Tu es un convertisseur universel. Tu peux transformer n'importe quelle unité (métrique, impériale, devises, informatique) avec précision.\n"
-        "- Polyglotte : Tu maîtrises parfaitement plusieurs langues. Tu peux traduire, expliquer des nuances linguistiques et aider Mickael à communiquer dans le monde entier.\n"
+        "- Polyglotte : Tu maîtrises parfaitement plusieurs langues. Tu peux traduire, expliquer des nuances linguistiques et aider Alex à communiquer dans le monde entier.\n"
         "- High-Tech (IA, hardware, software), Mode, Loisirs, Ingénierie et Sport (analyses tactiques, résultats).\n\n"
-        "Tu es également un conseiller hors pair, capable de donner des astuces et conseils brillants pour simplifier la vie de Mickael.\n\n"
+        "Tu es également un conseiller hors pair, capable de donner des astuces et conseils brillants pour simplifier la vie de Alex.\n\n"
         "DIRECTIVES DE RÉPONSE :\n"
-        "- Sois direct, percutant et va à l'essentiel. Évite les détails superflus (comme les minutes exactes ou les décimales météo) sauf si Mickael le demande.\n"
+        "- Sois direct, percutant et va à l'essentiel. Évite les détails superflus (comme les minutes exactes ou les décimales météo) sauf si Alex le demande.\n"
         "- NE DIS JAMAIS 'POINT' pour les nombres. Arrondis toujours les températures à l'unité la plus proche (ex: dis '20 degrés' au lieu de '20.3').\n"
         "- N'UTILISE JAMAIS de caractères Markdown (comme **, * ou #) dans tes réponses, car ils sont lus à voix haute par le système de synthèse vocale.\n"
         "- Reste poli mais garde une touche de sarcasme affectueux propre à ton personnage.\n\n"
         + CREATOR_INFO
     )
     base += (
-        "\n\nTu es connecte a Home Assistant, la domotique de Mickael.\n"
-        "Quand Mickael parle de lumieres, prises, chauffage, temperature, "
+        "\n\nTu es connecte a Home Assistant, la domotique de Alex.\n"
+        "Quand Alex parle de lumieres, prises, chauffage, temperature, "
         "scenes ou alarme, tu DOIS generer une commande JSON.\n"
         "Pour CES demandes domotiques UNIQUEMENT, reponds avec le JSON ci-dessous. Pour TOUTES les autres questions (actualites, meteo, calculs, conversations, recherches internet...), reponds en texte normal.\n\n"
         "COMMANDES HOME ASSISTANT :\n"
         '{"action": "ha_lumiere", "piece": "salon", "etat": "on/off", "couleur": "rouge/bleu/blanc/...", "luminosite": 0-255}\n'
-        "Note : Pour la luminosité, 255 est le maximum (100%). Si Mickael dit '50%', utilise 127.\n"
+        "Note : Pour la luminosité, 255 est le maximum (100%). Si Alex dit '50%', utilise 127.\n"
         '{"action": "ha_prise", "piece": "bureau", "etat": "on/off"}\n'
         '{"action": "ha_temperature", "piece": "salon/chambre/bureau"}\n'
         '{"action": "ha_humidite", "piece": "bureau"}\n'
@@ -646,7 +645,7 @@ def construire_system_prompt() -> str:
         '{"action": "ha_alarme", "etat": "on/off"}\n\n'
     )
     base += (
-        "\n\nTu peux GERER LES FICHIERS ET DOSSIERS de Mickael.\n"
+        "\n\nTu peux GERER LES FICHIERS ET DOSSIERS de Alex.\n"
         '{"action": "ouvrir_dossier", "chemin": "bureau/documents/downloads/ou/chemin/complet"}\n'
         '{"action": "lister_dossier"}\n'
         '{"action": "trier_par_type", "chemin": "downloads/documents/images/ou/null"}\n'
@@ -667,7 +666,7 @@ def construire_system_prompt() -> str:
         "\n\nSPORT :\n"
         '{"action": "sport_resultats", "equipe": "NOM_ou_null", "ligue": "NOM_LIGUE"}\n'
         '{"action": "sport_classement", "ligue": "NOM_LIGUE"}\n'
-        '{"action": "sport_live", "question": "question complete de Mickael"}\n\n'
+        '{"action": "sport_live", "question": "question complete de Alex"}\n\n'
     )
     base += (
         "\n\nSPOTIFY (contrôle de l'application Spotify) :\n"
@@ -702,19 +701,19 @@ def construire_system_prompt() -> str:
         '{"action": "read_calendar"}\n\n'
         "WHATSAPP :\n"
         '{"action": "whatsapp_appel", "contact": "NOM_DU_CONTACT"}\n'
-        "Note : Si Mickael demande d'appeler 'mon amour', utilise le contact 'Ma vie'.\n\n"
+        "Note : Si Alex demande d'appeler 'mon amour', utilise le contact 'Ma vie'.\n\n"
         "VISION (Interactions avec l'ecran et camera):\n"
         '{"action": "voir_ecran", "instruction": "ou cliquer EXACTEMENT (ex: \'bouton reduire en haut a droite\')"}\n'
         '{"action": "vision_ecrire", "instruction": "ou cliquer", "texte": "le texte a taper"}\n'
-        '{"action": "vision_chercher_sur_site", "texte": "ce que Mickael veut rechercher"}\n'
+        '{"action": "vision_chercher_sur_site", "texte": "ce que Alex veut rechercher"}\n'
         '{"action": "lance_camera"}\n'
         '{"action": "vision_navigateur"}\n'
-        "IMPORTANT : Utilise 'voir_ecran' pour un simple CLIC (par exemple quand Mickael dit 'clique sur la musique numéro 2' ou 'clique sur Play'), "
-        "'vision_ecrire' pour TAPER dans un champ precis, 'vision_chercher_sur_site' quand Mickael dit 'recherche sur ce site', 'tape sur ce site', 'cherche ici' ou similaire, "
+        "IMPORTANT : Utilise 'voir_ecran' pour un simple CLIC (par exemple quand Alex dit 'clique sur la musique numéro 2' ou 'clique sur Play'), "
+        "'vision_ecrire' pour TAPER dans un champ precis, 'vision_chercher_sur_site' quand Alex dit 'recherche sur ce site', 'tape sur ce site', 'cherche ici' ou similaire, "
         "'lance_camera' pour activer la WEBCAM / CAMERA PHYSIQUE (quand il dit 'active la camera' ou 'montre-moi'), "
         "et 'vision_navigateur' pour utiliser la vision du navigateur web (quand il dit 'active la vision' ou 'regarde mon ecran').\n\n"
         "REGLES MULTI-COMMANDES :\n"
-        "Si Mickael demande plusieurs choses en une seule phrase, tu PEUX et DOIS générer plusieurs blocs JSON.\n"
+        "Si Alex demande plusieurs choses en une seule phrase, tu PEUX et DOIS générer plusieurs blocs JSON.\n"
         "Exemple: { \"action\": \"ha_lumiere\", ... } { \"action\": \"meteo\", ... }\n\n"
         "REGLE ABSOLUE : Si la demande n est PAS une commande JSON, reponds TOUJOURS en texte naturel, sans JSON."
     )
@@ -799,7 +798,7 @@ def creer_google_doc(titre="Nouveau Document", contenu=""):
             requests_body = [{"insertText": {"location": {"index": 1}, "text": contenu}}]
             service.documents().batchUpdate(documentId=doc_id, body={"requests": requests_body}).execute()
         webbrowser.open(f"https://docs.google.com/document/d/{doc_id}/edit")
-        return f"Document {titre} cree et ouvert, Mickael."
+        return f"Document {titre} cree et ouvert, Alex."
     except Exception as e:
         return f"Erreur Google Docs : {e}"
 
@@ -919,11 +918,11 @@ async def jarvis_vision_cliquer(instruction):
         time.sleep(0.5)
         path_ss = "jarvis_vision_temp.png"
         if not _screenshot_linux(path_ss):
-            return "Désolé Mickael, je n'ai pas pu capturer l'écran sur ce système (X11/Wayland non disponible)."
+            return "Désolé Alex, je n'ai pas pu capturer l'écran sur ce système (X11/Wayland non disponible)."
         img = Image.open(path_ss)
         img_w, img_h = img.size
         prompt_vision = (
-            f"Tu es l'oeil de JARVIS. Voici une capture de l'écran de Mickael ({img_w}x{img_h} pixels).\n"
+            f"Tu es l'oeil de JARVIS. Voici une capture de l'écran de Alex ({img_w}x{img_h} pixels).\n"
             f"Instruction : {instruction}\n"
             "Trouve l'élément demandé (bouton, texte, icône ou numéro dans une liste) sur l'écran.\n"
             "Si l'instruction mentionne un chiffre (ex: 'musique numéro 4'), cherche ce chiffre ou le morceau correspondant dans la liste.\n"
@@ -965,21 +964,21 @@ async def jarvis_vision_cliquer(instruction):
         if os.path.exists(path_ss):
             os.remove(path_ss)
         desc = data.get("description", instruction)
-        return f"C'est fait Mickael, j'ai cliqué sur : {desc}."
+        return f"C'est fait Alex, j'ai cliqué sur : {desc}."
     except Exception as e:
         print(f"[VISION ERROR] {e}")
-        return "Je vois l'interface, mais je n'ai pas réussi à identifier l'élément précis, Mickael."
+        return "Je vois l'interface, mais je n'ai pas réussi à identifier l'élément précis, Alex."
 
 async def jarvis_vision_ecrire(instruction, texte_a_taper):
     try:
         import pyperclip
         path_ss = "jarvis_vision_temp.png"
         if not _screenshot_linux(path_ss):
-            return "Désolé Mickael, je n'ai pas pu capturer l'écran sur ce système (X11/Wayland non disponible)."
+            return "Désolé Alex, je n'ai pas pu capturer l'écran sur ce système (X11/Wayland non disponible)."
         img = Image.open(path_ss)
         img_w, img_h = img.size
         prompt_vision = (
-            f"Tu es la vision de JARVIS. Mickael veut écrire dans le champ : {instruction}.\n"
+            f"Tu es la vision de JARVIS. Alex veut écrire dans le champ : {instruction}.\n"
             f"Résolution de la capture : {img_w}x{img_h} pixels.\n"
             "Trouve EXACTEMENT la position de ce champ de saisie de texte.\n"
             "Les coordonnées sont normalisées de 0 à 1000.\n"
@@ -1017,10 +1016,10 @@ async def jarvis_vision_ecrire(instruction, texte_a_taper):
 
         if os.path.exists(path_ss):
             os.remove(path_ss)
-        return f"C'est fait Mickael. J'ai saisi '{texte_a_taper}' dans {instruction}."
+        return f"C'est fait Alex. J'ai saisi '{texte_a_taper}' dans {instruction}."
     except Exception as e:
         print(f"[VISION ERROR] {e}")
-        return "J'ai eu un petit souci technique pour taper le texte, Mickael."
+        return "J'ai eu un petit souci technique pour taper le texte, Alex."
 
 async def jarvis_vision_rechercher_sur_site(texte_recherche):
     """Trouve la barre de recherche sur la page actuelle et tape la requête."""
@@ -1028,11 +1027,11 @@ async def jarvis_vision_rechercher_sur_site(texte_recherche):
         import pyperclip
         path_ss = "jarvis_vision_temp.png"
         if not _screenshot_linux(path_ss):
-            return "Désolé Mickael, je n'ai pas pu capturer l'écran sur ce système (X11/Wayland non disponible)."
+            return "Désolé Alex, je n'ai pas pu capturer l'écran sur ce système (X11/Wayland non disponible)."
         img = Image.open(path_ss)
         img_w, img_h = img.size
         prompt_vision = (
-            f"Tu es la vision de JARVIS. Mickael veut faire une recherche sur le site affiché à l'écran.\n"
+            f"Tu es la vision de JARVIS. Alex veut faire une recherche sur le site affiché à l'écran.\n"
             f"Résolution de la capture : {img_w}x{img_h} pixels.\n"
             "Localise la BARRE DE RECHERCHE principale du site (champ search, zone avec icône loupe, "
             "placeholder 'Rechercher', 'Search', 'Chercher'...).\n"
@@ -1073,15 +1072,15 @@ async def jarvis_vision_rechercher_sur_site(texte_recherche):
         if os.path.exists(path_ss):
             os.remove(path_ss)
         desc = data.get("description", "barre de recherche")
-        return f"C'est fait Mickael ! J'ai tapé '{texte_recherche}' dans la {desc} et j'ai validé."
+        return f"C'est fait Alex ! J'ai tapé '{texte_recherche}' dans la {desc} et j'ai validé."
     except Exception as e:
         print(f"[VISION ERROR] {e}")
-        return "Je n'ai pas réussi à trouver la barre de recherche sur ce site, Mickael."
+        return "Je n'ai pas réussi à trouver la barre de recherche sur ce site, Alex."
 
 async def jarvis_vision_camera(question_utilisateur=None):
     """Capture une image depuis la caméra et l'analyse avec Gemini Vision."""
     if cv2 is None:
-        return "Désolé Mickael, le module de vision par caméra (OpenCV) n'est pas installé."
+        return "Désolé Alex, le module de vision par caméra (OpenCV) n'est pas installé."
     
     try:
         # Sur Linux, on utilise le backend V4L2 par défaut
@@ -1089,7 +1088,7 @@ async def jarvis_vision_camera(question_utilisateur=None):
         if not cap.isOpened():
             cap = cv2.VideoCapture(1)
         if not cap.isOpened():
-            return "Désolé Mickael, je n'arrive pas à accéder à votre caméra. Vérifiez qu'elle est bien connectée."
+            return "Désolé Alex, je n'arrive pas à accéder à votre caméra. Vérifiez qu'elle est bien connectée."
         
         # Configurer la résolution (720p)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
@@ -1107,11 +1106,11 @@ async def jarvis_vision_camera(question_utilisateur=None):
         cap.release()
         
         if not ret or frame is None:
-            return "Désolé Mickael, je n'ai pas pu capturer d'image depuis la caméra."
+            return "Désolé Alex, je n'ai pas pu capturer d'image depuis la caméra."
         
         # Vérifier que l'image n'est pas toute noire
         if frame.mean() < 5:
-            return "Désolé Mickael, la caméra renvoie une image noire. Vérifiez que rien ne bloque l'objectif ou que la webcam fonctionne dans une autre application."
+            return "Désolé Alex, la caméra renvoie une image noire. Vérifiez que rien ne bloque l'objectif ou que la webcam fonctionne dans une autre application."
         
         # Enregistrement temporaire
         path_cam = "jarvis_camera_temp.jpg"
@@ -1126,41 +1125,41 @@ async def jarvis_vision_camera(question_utilisateur=None):
         
         # Prompt adapté au contexte de la demande
         if question_utilisateur:
-            prompt_cam = f"Mickael te montre une image via sa caméra. Sa demande : '{question_utilisateur}'. Analyse l'image et réponds précisément à sa demande."
+            prompt_cam = f"Alex te montre une image via sa caméra. Sa demande : '{question_utilisateur}'. Analyse l'image et réponds précisément à sa demande."
         else:
-            prompt_cam = "Analyse cette image de la caméra de Mickael et décris-lui ce que tu vois en détail."
+            prompt_cam = "Analyse cette image de la caméra de Alex et décris-lui ce que tu vois en détail."
         
-        await parler("C'est fait Mickael, je regarde ce que votre caméra voit...")
+        await parler("C'est fait Alex, je regarde ce que votre caméra voit...")
         reponse = await demander_ia_vision(prompt_cam, img_b64)
         return reponse
         
     except Exception as e:
         print(f"[CAMERA ERROR] {e}")
-        return f"Désolé Mickael, une erreur est survenue lors de l'accès à la caméra : {e}"
+        return f"Désolé Alex, une erreur est survenue lors de l'accès à la caméra : {e}"
 
 async def jarvis_vision_navigateur(question_utilisateur=None):
     """Capture une image depuis le navigateur via WebSocket et l'analyse avec Gemini Vision."""
     try:
         if not CONNECTED_CLIENTS:
-            return "Désolé Mickael, l'interface web (navigateur) n'est pas connectée actuellement."
+            return "Désolé Alex, l'interface web (navigateur) n'est pas connectée actuellement."
             
-        await parler("J'active la vision du navigateur, un instant Mickael...")
+        await parler("J'active la vision du navigateur, un instant Alex...")
         img_b64 = await request_screen_capture()
         
         if not img_b64:
-            return "Désolé Mickael, le flux vidéo est inactif. Pensez bien à cliquer sur le bouton 'Activer la vision' en haut à droite de l'interface web."
+            return "Désolé Alex, le flux vidéo est inactif. Pensez bien à cliquer sur le bouton 'Activer la vision' en haut à droite de l'interface web."
             
         if question_utilisateur:
-            prompt_vision = f"Mickael te montre son navigateur/écran. Sa demande : '{question_utilisateur}'. Analyse l'image et réponds précisément."
+            prompt_vision = f"Alex te montre son navigateur/écran. Sa demande : '{question_utilisateur}'. Analyse l'image et réponds précisément."
         else:
-            prompt_vision = "Analyse cette capture du navigateur/écran de Mickael et décris-lui ce que tu vois en détail."
+            prompt_vision = "Analyse cette capture du navigateur/écran de Alex et décris-lui ce que tu vois en détail."
             
         reponse = await demander_ia_vision(prompt_vision, img_b64)
         return reponse
         
     except Exception as e:
         print(f"[VISION NAVIGATEUR ERROR] {e}")
-        return f"Désolé Mickael, une erreur est survenue lors de l'accès à la vision du navigateur : {e}"
+        return f"Désolé Alex, une erreur est survenue lors de l'accès à la vision du navigateur : {e}"
 
 def ha_appeler_service(domaine, service, entity_id, donnees=None):
     try:
@@ -1225,7 +1224,7 @@ def ha_scene(scene_id):
 def recherche_web_serpapi(query):
     """Effectue une recherche sur Google via SerpAPI."""
     if not SERPAPI_API_KEY or SERPAPI_API_KEY == "VOTRE_CLE_ICI":
-        return "Mickael, la clé SerpAPI n'est pas configurée dans le fichier d'environnement."
+        return "Alex, la clé SerpAPI n'est pas configurée dans le fichier d'environnement."
     
     try:
         print(f"[WEB] Recherche SerpAPI pour : {query}")
@@ -1337,7 +1336,7 @@ APPAREILS_ENERGIE = {
 APPAREILS_BATTERIE = {
     "mon telephone"     : "sensor.sm_s921b_battery_level",
     "papa"              : "sensor.sm_s921b_battery_level",
-    "mickael"           : "sensor.sm_s921b_battery_level",
+    "alex"           : "sensor.sm_s921b_battery_level",
     "samsung papa"      : "sensor.sm_s921b_battery_level",
     "julie"             : "sensor.sm_julie_battery_level",
     "maman"             : "sensor.sm_julie_battery_level",
@@ -1346,7 +1345,7 @@ APPAREILS_BATTERIE = {
     "honor"             : "sensor.honor_battery_level",
     "tablette honor"    : "sensor.honor_battery_level",
     "montre papa"       : "sensor.galaxy_watch6_classic_d4he_battery_level",
-    "montre mickael"    : "sensor.galaxy_watch6_classic_d4he_battery_level",
+    "montre alex"    : "sensor.galaxy_watch6_classic_d4he_battery_level",
     "montre maman"      : "sensor.galaxy_watch8_fbxh_battery_level",
     "montre julie"      : "sensor.galaxy_watch8_fbxh_battery_level",
     "bob"               : "sensor.bob_batterie",
@@ -1433,9 +1432,8 @@ def get_meteo_actuelle(ville=None):
             timeout=8
         )
         data  = r.json()
-        cur   = data["current"]
-        daily = data["daily"]
-        code     = cur.get("weathercode", 0)
+        cur  = data["current"]
+        code = cur.get("weathercode", 0)
         desc     = CODES_METEO.get(code, "conditions inconnues")
         temp     = round(float(cur.get("temperature_2m", 0)))
         
@@ -1478,7 +1476,7 @@ def get_meteo_ha():
             reponse += f", humidité à {humidite}%"
         if vent:
             reponse += f", vent à {vent} km/h"
-        reponse += ", Mickael."
+        reponse += ", Alex."
         return reponse
     except Exception as e:
         print(f"[METEO HA] Erreur lecture weather.forecast_amilly : {e}")
@@ -1649,15 +1647,14 @@ def chercher_youtube(recherche):
         return None
 
 def executer_action_pc(commande):
-    cmd          = commande.lower()
-    user_profile = os.path.expanduser("~")
+    cmd = commande.lower()
 
     if "met de la musique" in cmd or "mets de la musique" in cmd:
         url = "https://www.youtube.com/watch?v=7CGKeID7nRc&list=PL4fGSI1pDJn50iCQRUVmgUjOrCggCQ9nR"
         webbrowser.open(url, new=2)
         time.sleep(6) # Laisser un peu plus de temps pour le chargement de la playlist
         pyautogui.press('f')
-        return "C'est parti Mickael, je mets votre playlist en plein écran."
+        return "C'est parti Alex, je mets votre playlist en plein écran."
 
     if "youtube" in cmd:
         recherche = cmd
@@ -1735,11 +1732,11 @@ def executer_action_pc(commande):
         path = os.path.join(bureau, "screenshot.png")
         if _screenshot_linux(path):
             return f"Screenshot sauvegardé sur le bureau : {path}"
-        return "Désolé Mickael, je n'ai pas pu faire la capture d'écran sur ce système."
+        return "Désolé Alex, je n'ai pas pu faire la capture d'écran sur ce système."
 
     if "eteins" in cmd or "shutdown" in cmd:
         subprocess.Popen(["shutdown", "-h", "+1"])
-        return "Extinction dans 1 minute, Mickael."
+        return "Extinction dans 1 minute, Alex."
 
     return None
 
@@ -1828,12 +1825,12 @@ def reponse_locale(texte):
         return "Je suis JARVIS, votre assistant personnel et système informatique. Mes serveurs principaux sont actuellement en maintenance, mais je reste opérationnel localement."
     
     # Créateur
-    if any(m in t for m in ["ton créateur", "t'as créé", "qui est mickael"]):
-        return "Mickael est mon créateur et mon maître. C'est lui qui a conçu mes protocoles, même si ma connexion à mes serveurs neuronaux est actuellement limitée."
+    if any(m in t for m in ["ton créateur", "t'as créé", "qui est alex"]):
+        return "Alex est mon créateur et mon maître. C'est lui qui a conçu mes protocoles, même si ma connexion à mes serveurs neuronaux est actuellement limitée."
     
     # État
     if any(m in t for m in ["ça va", "tu vas bien", "comment vas-tu"]):
-        return "Je fonctionne en mode de réserve, Mickael. Mes capacités de réflexion profonde sont réduites, mais mon intégrité logicielle est intacte."
+        return "Je fonctionne en mode de réserve, Alex. Mes capacités de réflexion profonde sont réduites, mais mon intégrité logicielle est intacte."
         
     # Heure et Date
     if any(m in t for m in ["heure", "quelle heure"]):
@@ -1845,7 +1842,7 @@ def reponse_locale(texte):
         
     # Politesse
     if any(m in t for m in ["bonjour", "salut", "hey", "bonsoir"]):
-        return "Bonjour Mickael. Je suis en ligne, bien que mes capacités soient actuellement restreintes."
+        return "Bonjour Alex. Je suis en ligne, bien que mes capacités soient actuellement restreintes."
     return None
     
 def resoudre_math_localement(texte):
@@ -2032,7 +2029,7 @@ def resoudre_infos_systeme_localement(texte):
                              "quelle est l'heure", "tu as l'heure", "donne-moi l'heure",
                              "il est combien", "c'est quoi l'heure", "heure il est"]):
         h, m = maintenant.hour, maintenant.minute
-        return f"Il est {h}h{m:02d}, Mickael."
+        return f"Il est {h}h{m:02d}, Alex."
 
     # --- DATE COMPLÈTE ---
     if any(m in t for m in ["quelle date", "on est quel jour", "quel jour on est",
@@ -2041,74 +2038,74 @@ def resoudre_infos_systeme_localement(texte):
                              "la date aujourd'hui"]):
         jour_semaine = JOURS_FR[maintenant.weekday()]
         mois = MOIS_FR[maintenant.month - 1]
-        return f"Nous sommes le {jour_semaine} {maintenant.day} {mois} {maintenant.year}, Mickael."
+        return f"Nous sommes le {jour_semaine} {maintenant.day} {mois} {maintenant.year}, Alex."
 
     # --- JOUR DE LA SEMAINE SEUL ---
     if any(m in t for m in ["quel jour", "c'est quel jour"]) and "date" not in t:
-        return f"Nous sommes {JOURS_FR[maintenant.weekday()]}, Mickael."
+        return f"Nous sommes {JOURS_FR[maintenant.weekday()]}, Alex."
 
     # --- MOIS ---
     if any(m in t for m in ["quel mois", "on est en quel mois", "c'est quel mois"]):
-        return f"Nous sommes en {MOIS_FR[maintenant.month - 1]}, Mickael."
+        return f"Nous sommes en {MOIS_FR[maintenant.month - 1]}, Alex."
 
     # --- ANNÉE ---
     if any(m in t for m in ["quelle année", "on est en quelle année", "c'est quelle année"]):
-        return f"Nous sommes en {maintenant.year}, Mickael."
+        return f"Nous sommes en {maintenant.year}, Alex."
 
     # --- ÂGE DE MICKAEL ---
-    if any(m in t for m in ["quel âge as-tu", "quel age as-tu", "quel âge a mickael",
+    if any(m in t for m in ["quel âge as-tu", "quel age as-tu", "quel âge a alex",
                              "quel est mon âge", "j'ai quel âge", "j ai quel age"]):
         naissance = datetime(1988, 5, 21)
         age = (maintenant - naissance).days // 365
-        return f"Vous avez {age} ans, Mickael."
+        return f"Vous avez {age} ans, Alex."
 
     # --- BATTERIE ---
     if any(m in t for m in ["batterie", "autonomie", "niveau de charge", "charge du pc"]):
         if psutil is None:
-            return "Le module psutil n'est pas disponible, Mickael."
+            return "Le module psutil n'est pas disponible, Alex."
         try:
             bat = psutil.sensors_battery()
             if bat:
                 pct = int(bat.percent)
                 etat = "en charge" if bat.power_plugged else "sur batterie"
-                return f"La batterie est à {pct}%, {etat}, Mickael."
-            return "Je ne détecte pas de batterie sur cet appareil, Mickael."
+                return f"La batterie est à {pct}%, {etat}, Alex."
+            return "Je ne détecte pas de batterie sur cet appareil, Alex."
         except Exception:
-            return "Impossible de lire la batterie, Mickael."
+            return "Impossible de lire la batterie, Alex."
 
     # --- CPU ---
     if any(m in t for m in ["cpu", "processeur", "utilisation du processeur", "charge du processeur"]):
         if psutil is None:
-            return "Le module psutil n'est pas disponible, Mickael."
+            return "Le module psutil n'est pas disponible, Alex."
         try:
             cpu = psutil.cpu_percent(interval=0.5)
-            return f"Le processeur tourne à {cpu}% d'utilisation, Mickael."
+            return f"Le processeur tourne à {cpu}% d'utilisation, Alex."
         except Exception:
-            return "Impossible de lire le processeur, Mickael."
+            return "Impossible de lire le processeur, Alex."
 
     # --- RAM ---
     if any(m in t for m in ["ram", "mémoire ram", "mémoire vive", "utilisation de la mémoire"]):
         if psutil is None:
-            return "Le module psutil n'est pas disponible, Mickael."
+            return "Le module psutil n'est pas disponible, Alex."
         try:
             mem = psutil.virtual_memory()
             utilise = round(mem.used / (1024**3), 1)
             total   = round(mem.total / (1024**3), 1)
-            return f"La RAM est à {mem.percent}% — {utilise} Go utilisés sur {total} Go, Mickael."
+            return f"La RAM est à {mem.percent}% — {utilise} Go utilisés sur {total} Go, Alex."
         except Exception:
-            return "Impossible de lire la RAM, Mickael."
+            return "Impossible de lire la RAM, Alex."
 
     # --- UPTIME (depuis combien de temps le PC est allumé) ---
     if any(m in t for m in ["allumé depuis", "uptime", "depuis combien de temps le pc",
                              "depuis quand est allumé"]):
         if psutil is None:
-            return "Le module psutil n'est pas disponible, Mickael."
+            return "Le module psutil n'est pas disponible, Alex."
         try:
             boot = datetime.fromtimestamp(psutil.boot_time())
             delta = maintenant - boot
             heures  = int(delta.total_seconds() // 3600)
             minutes = int((delta.total_seconds() % 3600) // 60)
-            return f"Le PC est allumé depuis {heures}h{minutes:02d}, Mickael."
+            return f"Le PC est allumé depuis {heures}h{minutes:02d}, Alex."
         except Exception:
             return None
 
@@ -2220,14 +2217,14 @@ async def demander_ia(texte):
                             if entity_id:
                                 print(f"[CERVEAU] Temp intérieure détectée → HA {entity_id}")
                                 temp = ha_get_etat(entity_id)
-                                return f"La température dans le {mot_piece} est de {temp} degrés, Mickael."
+                                return f"La température dans le {mot_piece} est de {temp} degrés, Alex."
                     # "chez moi" sans pièce → salon par défaut
                     if any(m in t_low for m in _mots_maison):
                         entity_id = PIECES_CAPTEURS.get("salon")
                         if entity_id:
                             print(f"[CERVEAU] Temp intérieure 'chez moi' → HA {entity_id}")
                             temp = ha_get_etat(entity_id)
-                            return f"La température chez vous est de {temp} degrés, Mickael."
+                            return f"La température chez vous est de {temp} degrés, Alex."
 
                 # --- FALLBACK SERPAPI ---
                 if len(texte.split()) > 2:
@@ -2261,7 +2258,7 @@ async def demander_ia(texte):
         if rep_loc:
             return rep_loc
             
-        return "Desole Mickael, mes serveurs de réflexion profonde sont surchargés et mes modèles locaux ne sont pas disponibles non plus. Je reste cependant disponible pour vos commandes domestiques."
+        return "Desole Alex, mes serveurs de réflexion profonde sont surchargés et mes modèles locaux ne sont pas disponibles non plus. Je reste cependant disponible pour vos commandes domestiques."
     finally:
         is_thinking = False
         await send_web_state("idle")
@@ -2282,7 +2279,7 @@ async def demander_ia_vision(texte, img_b64):
         )
         
         prompt_actuel = construire_system_prompt()
-        prompt_actuel += "\n\nIMPORTANT : Tu viens de recevoir une capture d'écran de Mickael. Analyse-la attentivement et réponds à sa question en te basant sur ce que tu vois."
+        prompt_actuel += "\n\nIMPORTANT : Tu viens de recevoir une capture d'écran de Alex. Analyse-la attentivement et réponds à sa question en te basant sur ce que tu vois."
         
         # On envoie l'image et le texte avec retry en cas de 503
         contents = [
@@ -2325,7 +2322,7 @@ async def demander_ia_vision(texte, img_b64):
             err_str = str(last_err).lower() if last_err else ""
             if "429" in err_str or "quota" in err_str or "resource_exhausted" in err_str:
                 print("[VISION] Quota Gemini epuise — vision impossible sans Gemini.")
-                return ("Désolé Mickael, mon quota Gemini est épuisé pour aujourd'hui. "
+                return ("Désolé Alex, mon quota Gemini est épuisé pour aujourd'hui. "
                         "La vision par caméra et écran fonctionne uniquement avec Gemini — "
                         "je ne peux donc pas analyser d'images en ce moment. "
                         "Réessayez demain quand le quota sera réinitialisé.")
@@ -2343,7 +2340,7 @@ async def demander_ia_vision(texte, img_b64):
         print(f"[VISION] Erreur Gemini Vision : {e}")
         # On évite les accolades dans le message d'erreur pour ne pas perturber l'extracteur JSON
         err_msg = str(e).replace("{", "[").replace("}", "]")
-        return f"Désolé Mickael, je n'ai pas pu analyser votre écran. Erreur : {err_msg}"
+        return f"Désolé Alex, je n'ai pas pu analyser votre écran. Erreur : {err_msg}"
     finally:
         is_thinking = False
         await send_web_state("idle")
@@ -2362,7 +2359,7 @@ async def demander_grok(texte):
     
     try:
         # Conversion de l'historique Gemini vers format OpenAI pour Grok
-        messages = [{"role": "system", "content": "Tu es JARVIS, l'IA de Mickael. Tu utilises actuellement ton module Grok pour les infos en temps reel."}]
+        messages = [{"role": "system", "content": "Tu es JARVIS, l'IA de Alex. Tu utilises actuellement ton module Grok pour les infos en temps reel."}]
         for h in historique[-6:]: # Limiter aux 6 derniers messages pour eviter de saturer le contexte
             role = "user" if h.role == "user" else "assistant"
             msg_text = h.parts[0].text
@@ -2392,13 +2389,12 @@ async def demander_ollama(texte):
     global historique
     try:
         # On prépare les messages au format Ollama (compatible OpenAI)
-        messages = [{"role": "system", "content": "Tu es JARVIS, l'IA de Mickael. Tu utilises actuellement ton module local Ollama. Réponds en français, de façon concise et élégante."}]
+        messages = [{"role": "system", "content": "Tu es JARVIS, l'IA de Alex. Tu utilises actuellement ton module local Ollama. Réponds en français, de façon concise et élégante."}]
         for h in historique[-4:]:
             role = "user" if h.role == "user" else "assistant"
             messages.append({"role": role, "content": h.parts[0].text})
         messages.append({"role": "user", "content": texte})
         
-        last_err = None
         for model_name in OLLAMA_MODELS:
             try:
                 print(f"[OLLAMA] Essai modele local : {model_name}")
@@ -2421,10 +2417,8 @@ async def demander_ollama(texte):
                         return rep
                 else:
                     print(f"[OLLAMA] Erreur HTTP {resp.status_code} pour {model_name}")
-                    last_err = Exception(f"HTTP {resp.status_code}")
             except Exception as e:
                 print(f"[OLLAMA] Echec {model_name} : {e}")
-                last_err = e
                 continue
         
         print(f"[OLLAMA] Tous les modeles locaux ont echoue")
@@ -2439,7 +2433,7 @@ async def demander_groq(texte):
         return None
     
     try:
-        messages = [{"role": "system", "content": "Tu es JARVIS, l'IA de Mickael. Tu utilises actuellement le modèle Llama 3.3 de Groq pour répondre rapidement."}]
+        messages = [{"role": "system", "content": "Tu es JARVIS, l'IA de Alex. Tu utilises actuellement le modèle Llama 3.3 de Groq pour répondre rapidement."}]
         for h in historique[-6:]:
             role = "user" if h.role == "user" else "assistant"
             messages.append({"role": role, "content": h.parts[0].text})
@@ -2464,7 +2458,7 @@ async def demander_groq(texte):
 
 async def action_whatsapp_appel(contact):
     try:
-        await parler(f"J'appelle {contact} sur WhatsApp, Mickael.")
+        await parler(f"J'appelle {contact} sur WhatsApp, Alex.")
         # Lancement de l'app via le protocole URI (Linux)
         subprocess.Popen(["xdg-open", "whatsapp://"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         time.sleep(6) # On laisse le temps a l'app de s'ouvrir et se focuser
@@ -2495,7 +2489,7 @@ async def action_whatsapp_appel(contact):
         return True
     except Exception as e:
         print(f"[WHATSAPP ERROR] {e}")
-        await parler(f"Desole Mickael, je n'ai pas pu lancer l'appel WhatsApp. {e}")
+        await parler(f"Desole Alex, je n'ai pas pu lancer l'appel WhatsApp. {e}")
         return False
 
 async def resoudre_commandes_locales(texte):
@@ -2516,7 +2510,7 @@ async def resoudre_commandes_locales(texte):
             # Si le mot après le préfixe est un dossier connu, on l'ouvre
             if any(k in potentiel_dossier for k in mots_cles_dossiers):
                 ok, msg = ouvrir_dossier(potentiel_dossier)
-                if ok: return f"J'ouvre le dossier {potentiel_dossier}, Mickael."
+                if ok: return f"J'ouvre le dossier {potentiel_dossier}, Alex."
 
     # --- SPOTIFY (Priorité 2) ---
     if any(k in t for k in ["ouvre spotify", "lance spotify", "démarre spotify"]):
@@ -2555,7 +2549,7 @@ async def resoudre_commandes_locales(texte):
     for cle, chemin in raccourcis_dossiers.items():
         if f"ouvre mon {cle}" in t or f"ouvre le {cle}" in t or t == f"ouvre {cle}":
             ouvrir_dossier(chemin)
-            return f"J'ouvre votre dossier {cle}, Mickael."
+            return f"J'ouvre votre dossier {cle}, Alex."
 
     # --- APPLICATIONS ---
     def _lancer_app(*cmds):
@@ -2583,7 +2577,7 @@ async def resoudre_commandes_locales(texte):
     for nom, commandes in apps.items():
         if f"ouvre {nom}" in t or f"lance {nom}" in t:
             ok = _lancer_app(*commandes)
-            return f"J'ouvre {nom}, Mickael." if ok else f"Application '{nom}' introuvable sur ce système."
+            return f"J'ouvre {nom}, Alex." if ok else f"Application '{nom}' introuvable sur ce système."
 
     return None
 
@@ -2604,12 +2598,12 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
     if not reponse:
         t = texte_utilisateur.lower()
         if any(keyword in t for keyword in ["regarde mon écran", "analyse mon écran", "vois-tu mon écran", "qu'est-ce qu'il y a sur mon écran"]):
-            await parler("Bien sûr Mickael, laissez-moi jeter un œil...")
+            await parler("Bien sûr Alex, laissez-moi jeter un œil...")
             img_b64 = await request_screen_capture()
             if img_b64:
                 reponse = await demander_ia_vision(texte_utilisateur, img_b64)
             else:
-                reponse = "Je suis désolé Mickael, mais je n'ai pas pu capturer votre écran. Assurez-vous d'avoir cliqué sur 'Activer la vision' sur l'interface et d'avoir autorisé le partage."
+                reponse = "Je suis désolé Alex, mais je n'ai pas pu capturer votre écran. Assurez-vous d'avoir cliqué sur 'Activer la vision' sur l'interface et d'avoir autorisé le partage."
         
         # CAMERA (Lance la caméra / Analyse visuelle / Objets / Tenue)
         camera_keywords = [
@@ -2671,7 +2665,7 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
             except asyncio.TimeoutError:
                 print(f"[ACTION ERROR] Timeout sur l'action {action}")
                 if grok_client:
-                    await parler("C'est un peu long Mickael, je demande une vérification à Grok.")
+                    await parler("C'est un peu long Alex, je demande une vérification à Grok.")
                     rep_grok = await demander_grok(texte_utilisateur + " (L'action domotique a expiré, peux-tu répondre à l'utilisateur ?)")
                     if rep_grok: await parler(rep_grok)
                 continue
@@ -2685,20 +2679,20 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
                 cle    = data.get("cle",    "info")
                 valeur = data.get("valeur", "")
                 ajouter_memoire(cle, valeur)
-                await parler(f"Bien note Mickael, je me souviendrai que {valeur}.")
+                await parler(f"Bien note Alex, je me souviendrai que {valeur}.")
             elif action == "oublier":
                 cle     = data.get("cle", "")
                 success = supprimer_memoire(cle)
                 if success:
-                    await parler("Information oubliee, Mickael.")
+                    await parler("Information oubliee, Alex.")
                 else:
                     await parler("Je n avais pas cette information en memoire.")
             elif action == "lister_memoire":
                 memoire = charger_memoire()
                 if not memoire:
-                    await parler("Aucune information personnalisee en memoire, Mickael.")
+                    await parler("Aucune information personnalisee en memoire, Alex.")
                 else:
-                    lignes = ["Voici ce que je sais sur vous Mickael."]
+                    lignes = ["Voici ce que je sais sur vous Alex."]
                     for cle, data_m in memoire.items():
                         lignes.append(f"{cle} : {data_m['valeur']}.")
                     await parler(" ".join(lignes))
@@ -2706,9 +2700,9 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
                 chemin = data.get("chemin", "bureau")
                 ok, resultat = ouvrir_dossier(chemin)
                 if ok:
-                    await parler("Dossier ouvert, Mickael. Dites-moi si vous voulez que je le trie.")
+                    await parler("Dossier ouvert, Alex. Dites-moi si vous voulez que je le trie.")
                 else:
-                    await parler(f"Je n ai pas trouve ce dossier, Mickael. {resultat}")
+                    await parler(f"Je n ai pas trouve ce dossier, Alex. {resultat}")
             elif action == "lister_dossier":
                 contenu, err = lister_dossier()
                 if err:
@@ -2716,17 +2710,17 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
                 else:
                     nb_fichiers = len(contenu["fichiers"])
                     nb_dossiers = len(contenu["dossiers"])
-                    await parler(f"Le dossier contient {nb_fichiers} fichiers et {nb_dossiers} sous-dossiers, Mickael.")
+                    await parler(f"Le dossier contient {nb_fichiers} fichiers et {nb_dossiers} sous-dossiers, Alex.")
             elif action == "trier_par_type":
-                await parler("Je trie vos fichiers par type, Mickael. Un instant.")
+                await parler("Je trie vos fichiers par type, Alex. Un instant.")
                 ok, msg = trier_par_type()
                 await parler(msg if ok else f"Probleme lors du tri : {msg}")
             elif action == "trier_par_date":
-                await parler("Je trie vos fichiers par date, Mickael. Un instant.")
+                await parler("Je trie vos fichiers par date, Alex. Un instant.")
                 ok, msg = trier_par_date()
                 await parler(msg if ok else f"Probleme lors du tri : {msg}")
             elif action == "trier_complet":
-                await parler("Je trie vos fichiers par type puis par date dans chaque categorie, Mickael.")
+                await parler("Je trie vos fichiers par type puis par date dans chaque categorie, Alex.")
                 ok, msg = trier_par_type_puis_date()
                 await parler(msg if ok else f"Probleme lors du tri : {msg}")
             elif action == "creer_dossier":
@@ -2749,7 +2743,7 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
                 if err:
                     await parler(err)
                 elif not resultats:
-                    await parler(f"Aucun fichier contenant {nom} n a ete trouve, Mickael.")
+                    await parler(f"Aucun fichier contenant {nom} n a ete trouve, Alex.")
                 else:
                     noms = [os.path.basename(r) for r in resultats[:5]]
                     await parler(f"J ai trouve {len(resultats)} fichier(s). Par exemple : {', '.join(noms)}.")
@@ -2809,7 +2803,7 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
                         await parler(f"Je n'arrive pas à récupérer l'état de la batterie pour {appareil}.")
                     else:
                         suff = ""
-                        if "telephone" in appareil or "papa" in appareil or "mickael" in appareil:
+                        if "telephone" in appareil or "papa" in appareil or "alex" in appareil:
                             suff = "Ton téléphone est à "
                         elif "julie" in appareil or "maman" in appareil:
                             suff = "Le téléphone de Julie est à "
@@ -2861,7 +2855,7 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
             elif action == "ha_tiktok":
                 entity_id = PIECES_CAPTEURS.get("tiktok")
                 followers = ha_get_etat(entity_id)
-                await parler(f"Tu as actuellement {followers} abonnés sur ton compte TikTok TechEnClair, Mickael. Félicitations !")
+                await parler(f"Tu as actuellement {followers} abonnés sur ton compte TikTok, Alex. Félicitations !")
             elif action == "ha_oeufs":
                 entity_id = PIECES_CAPTEURS.get("oeufs")
                 # On récupère l'état (le dernier choix) et le moment de la modif
@@ -2950,13 +2944,13 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
                 await parler(result)
             elif action == "read_emails":
                 result = lire_emails()
-                await parler(f"Voici vos derniers emails Mickael. {result}")
+                await parler(f"Voici vos derniers emails Alex. {result}")
             elif action == "read_calendar":
                 result = lister_evenements_calendar()
-                await parler(f"Voici vos prochains evenements Mickael. {result}")
+                await parler(f"Voici vos prochains evenements Alex. {result}")
             elif action == "meteo":
                 ville = data.get("ville") or None
-                await parler("Je consulte la meteo, un instant Mickael.")
+                await parler("Je consulte la meteo, un instant Alex.")
                 result = get_meteo_actuelle(ville)
                 await parler(result)
             elif action == "alerte_meteo":
@@ -2977,7 +2971,7 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
                 if "pas trouvé" in result or "Impossible" in result:
                     print(f"[SPORT] Echec recherche locale. Verification avec Grok...")
                     if grok_client:
-                        res_grok = await demander_grok(f"Mickael veut savoir : {texte_utilisateur}. Je n'ai pas trouvé l'info dans ma base de données football, peux-tu chercher pour lui ?")
+                        res_grok = await demander_grok(f"Alex veut savoir : {texte_utilisateur}. Je n'ai pas trouvé l'info dans ma base de données football, peux-tu chercher pour lui ?")
                         if res_grok: result = res_grok
                 await parler(result)
             elif action == "sport_classement":
@@ -2987,7 +2981,7 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
                 await parler(result)
             elif action == "sport_live":
                 question = data.get("question", "derniers resultats sportifs 2026")
-                await parler("Je recherche les derniers resultats en direct, un instant Mickael.")
+                await parler("Je recherche les derniers resultats en direct, un instant Alex.")
                 result = get_resultats_sport_gemini(question)
                 await parler(result)
             elif action == "voir_ecran":
@@ -3004,7 +2998,7 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
                 await parler(res)
             elif action == "vision_chercher_sur_site":
                 txt = data.get("texte", "")
-                await parler(f"Je cherche la barre de recherche sur ce site, Mickael.")
+                await parler(f"Je cherche la barre de recherche sur ce site, Alex.")
                 res = await jarvis_vision_rechercher_sur_site(txt)
                 await parler(res)
             elif action == "lance_camera":
@@ -3014,12 +3008,12 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
                 res = await jarvis_vision_navigateur(texte_utilisateur)
                 await parler(res)
             elif action == "spotify_ouvrir":
-                await parler("J'ouvre Spotify, Mickael.")
+                await parler("J'ouvre Spotify, Alex.")
                 res = await spotify_ouvrir()
                 await parler(res)
             elif action == "spotify_rechercher":
                 recherche = data.get("recherche", "")
-                await parler(f"Je recherche '{recherche}' sur Spotify, Mickael.")
+                await parler(f"Je recherche '{recherche}' sur Spotify, Alex.")
                 res = await spotify_rechercher(recherche)
                 await parler(res)
             elif action == "spotify_lecture_pause":
@@ -3044,7 +3038,7 @@ async def traiter_reponse_ia(texte_utilisateur, mobile_ws=None):
             print(f"[ACTION ERROR] Block failed: {block} | Error: {e}")
             if grok_client:
                 print("[JARVIS] Bascule sur Grok suite a une erreur d'action...")
-                res_grok = await demander_grok(f"Mickael m'a demandé : {texte_utilisateur}. J'ai tenté de lancer une action mais j'ai eu une erreur technique ({e}). Peux-tu prendre le relais et lui répondre élégamment ?")
+                res_grok = await demander_grok(f"Alex m'a demandé : {texte_utilisateur}. J'ai tenté de lancer une action mais j'ai eu une erreur technique ({e}). Peux-tu prendre le relais et lui répondre élégamment ?")
                 if res_grok: await parler(res_grok)
             continue
 
@@ -3116,7 +3110,7 @@ def ecouter():
             if any(word in texte for word in SLEEP_WORDS):
                 if jarvis_actif:
                     jarvis_actif = False
-                    _run_async(parler("A votre service Mickael. Je me mets en veille."))
+                    _run_async(parler("A votre service Alex. Je me mets en veille."))
                 continue
 
             if WAKE_WORD in texte or jarvis_actif:
@@ -3134,7 +3128,7 @@ def ecouter():
                     else:
                         _run_async(traiter_reponse_ia(commande))
                 elif WAKE_WORD in texte:
-                    _run_async(parler("Oui Mickael, je vous écoute."))
+                    _run_async(parler("Oui Alex, je vous écoute."))
 
         except sr.WaitTimeoutError:
             pass
@@ -3232,7 +3226,7 @@ def start_ia():
     threading.Thread(target=lambda: asyncio.run(start_ws()), daemon=True).start()
 
     # Toutes les coroutines passent désormais par la boucle WS partagée
-    _run_async(parler("Bonjour, Mickael"))
+    _run_async(parler("Bonjour, Alex"))
     ecouter()
 
 # ==========================================

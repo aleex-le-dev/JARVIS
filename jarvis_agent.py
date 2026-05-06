@@ -66,13 +66,13 @@ class JarvisAgent:
 
     def system_prompt(self) -> str:
         base = (
-            "Tu es JARVIS, assistant IA personnel cree par Mickael.\n"
+            "Tu es JARVIS, assistant IA personnel cree par Alex.\n"
             "Reponses courtes, ton sarcastique mais respectueux.\n\n"
         )
         base += self.memory_context()
         base += (
-            "\n\nTu es connecte a Home Assistant, la domotique de Mickael. "
-            "Quand Mickael parle de lumieres, prises, chauffage, temperature, "
+            "\n\nTu es connecte a Home Assistant, la domotique de Alex. "
+            "Quand Alex parle de lumieres, prises, chauffage, temperature, "
             "scenes ou alarme, tu DOIS generer une commande JSON. "
             "Pour CES demandes domotiques UNIQUEMENT, reponds avec le JSON."\n
         )
