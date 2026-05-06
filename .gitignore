@@ -1,0 +1,25 @@
+# Environnement
+.env
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Auth Google
+token.pickle
+credentials.json
+
+# TTS temp
+jarvis_tts_current.mp3
+jarvis_tts_*.mp3
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Mémoire personnelle
+jarvis_memoire.json
+
+# Logs & divers
+*.log
+.DS_Store
